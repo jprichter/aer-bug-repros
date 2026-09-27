@@ -13,8 +13,8 @@ aer test force-app
 Deploy the source to a scratch org and run the test with Salesforce CLI:
 
 ```sh
-sfq project deploy start --source-dir force-app --target-org warden-dev
-sfq apex test run -w 10 -o warden-dev
+sf project deploy start --source-dir force-app --target-org scratchOrg
+sf apex test run -w 10 -o scratchOrg
 ```
 
 The Salesforce run is expected to fail at the status assertion if the reported behavior is present.
