@@ -1,4 +1,4 @@
-# Custom lookup field SOQL reproduction
+# Dynamic user-mode SOQL reproduction
 
 This minimal Salesforce DX project checks whether AER resolves a custom lookup
 field in dynamic SOQL that runs in user mode.
@@ -27,3 +27,6 @@ single lookup field and `Database.queryWithBinds` call.
 
 To verify on Salesforce, deploy `force-app` to a scratch org, then run
 `LookupFieldQueryReproTest` there.
+
+See `~/wiki/aer-user-mode-dynamic-soql-bug.md` for the full bug report,
+environment details, and impact.
