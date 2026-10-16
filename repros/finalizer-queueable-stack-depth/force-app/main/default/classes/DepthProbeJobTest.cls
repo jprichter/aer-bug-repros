@@ -25,4 +25,23 @@ private class DepthProbeJobTest {
       );
     }
   }
+
+  @IsTest
+  static void finalizerPassingStackDepthRestoresAllowance() {
+    System.runAs(new User(Id = UserInfo.getUserId())) {
+      AsyncOptions options = new AsyncOptions();
+      options.MaximumQueueableStackDepth = 100;
+      Test.startTest();
+      // The Finalizer passes MaximumQueueableStackDepth = 100 to step 2.
+      System.enqueueJob(new DepthProbeJob(1, false, 100), options);
+      Test.stopTest();
+      Set<String> names = new Set<String>();
+      for (Account a : [SELECT Name FROM Account WHERE Name LIKE 'Depth step %' OR Name LIKE 'Finalizer enqueue:%']) {
+        names.add(a.Name);
+      }
+      System.assert(names.contains('Depth step 1: enqueued'), names);
+      System.assert(names.contains('Depth step 2: enqueued'), names);
+      System.assertEquals(2, names.size(), names);
+    }
+  }
 }
