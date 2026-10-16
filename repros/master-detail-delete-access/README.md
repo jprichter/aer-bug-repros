@@ -75,6 +75,23 @@ as enough to delete a detail record, whatever grants the Edit. AER seems to
 require Delete-level access to the master record, which only the owner (or a
 user above them) has.
 
+## Not a test-user permissions issue
+
+AER's default test user has no access to custom objects or fields unless a
+permission set is assigned with `--assign-perms`. That does not cause these
+failures:
+
+- Every delete runs inside `System.runAs` as a user who has the
+  `Repro_Detail_Editor` permission set. The inserts and updates in the same
+  tests succeed; only the delete fails.
+- `aer test force-app --assign-perms Repro_Detail_Editor` gives the same
+  results as the table above (checked on v1.5.4 and v1.5.8).
+- Granting Delete on both master objects in the permission set, with or
+  without `--assign-perms`, also gives the same results and the same
+  `INSUFFICIENT_ACCESS_OR_READONLY` error. AER is not missing an object
+  permission on the master. It rejects the delete based on the runner's
+  record access to the master.
+
 ## Expected behavior
 
 AER should allow a detail record to be deleted when the user has:
