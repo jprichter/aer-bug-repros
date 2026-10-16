@@ -6,6 +6,7 @@
 | --- | --- | --- |
 | [`async-apexjob-status`](repros/async-apexjob-status/) | `AsyncApexJob.Status` after a Queueable throws during `Test.stopTest()` |
 | [`dynamic-user-mode-soql`](repros/dynamic-user-mode-soql/) | Custom-field resolution in dynamic user-mode SOQL |
+| [`master-detail-delete-access`](repros/master-detail-delete-access/) | Non-owner with Edit on the master cannot delete a detail record |
 
 ## Run a reproduction
 
