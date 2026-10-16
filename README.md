@@ -7,6 +7,7 @@
 | [`async-apexjob-status`](repros/async-apexjob-status/) | `AsyncApexJob.Status` after a Queueable throws during `Test.stopTest()` |
 | [`dynamic-user-mode-soql`](repros/dynamic-user-mode-soql/) | Custom-field resolution in dynamic user-mode SOQL |
 | [`master-detail-delete-access`](repros/master-detail-delete-access/) | Non-owner with Edit on the master cannot delete a detail record |
+| [`sobject-put-non-editable-field`](repros/sobject-put-non-editable-field/) | `SObject.put()` on a read-only standard or system field (audit fields, `IsDeleted`, `PermissionSet.IsOwnedByProfile`) does not throw |
 
 ## Run a reproduction
 
