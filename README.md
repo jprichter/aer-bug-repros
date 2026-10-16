@@ -6,6 +6,7 @@
 | --- | --- | --- |
 | [`async-apexjob-status`](repros/async-apexjob-status/) | `AsyncApexJob.Status` after a Queueable throws during `Test.stopTest()` |
 | [`dynamic-user-mode-soql`](repros/dynamic-user-mode-soql/) | Custom-field resolution in dynamic user-mode SOQL |
+| [`sobject-put-non-editable-field`](repros/sobject-put-non-editable-field/) | `SObject.put()` on a non-editable field does not throw |
 
 ## Run a reproduction
 
