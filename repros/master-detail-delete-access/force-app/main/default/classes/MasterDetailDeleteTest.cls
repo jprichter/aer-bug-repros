@@ -8,6 +8,11 @@
  *
  * Deleting a detail record needs only Edit access on its master record, so
  * every test passes in a real org.
+ *
+ * The privateMaster* tests use a second pair, Repro_Private_Parent__c
+ * (Private org-wide default) and its detail Repro_Private_Child__c. The
+ * runner gets access to the master only through a manual share, which
+ * separates the access level on the master from ownership.
  */
 @IsTest
 private class MasterDetailDeleteTest {
@@ -60,6 +65,82 @@ private class MasterDetailDeleteTest {
       0,
       [SELECT COUNT() FROM Repro_Child__c WHERE Id = :childId]
     );
+  }
+
+  @IsTest
+  static void privateMasterEditShareUserModeDelete() {
+    User runner = runnerWithPermSet();
+    Repro_Private_Child__c child = insertPrivateParentAndChild(runner, 'Edit');
+
+    System.runAs(runner) {
+      Database.delete(
+        new List<SObject>{ new Repro_Private_Child__c(Id = child.Id) },
+        true,
+        AccessLevel.USER_MODE
+      );
+    }
+    System.Assert.areEqual(
+      0,
+      [SELECT COUNT() FROM Repro_Private_Child__c WHERE Id = :child.Id]
+    );
+  }
+
+  @IsTest
+  static void privateMasterEditShareWithSharingDelete() {
+    User runner = runnerWithPermSet();
+    Repro_Private_Child__c child = insertPrivateParentAndChild(runner, 'Edit');
+
+    System.runAs(runner) {
+      new WithSharing().deletePrivateChild(child.Id);
+    }
+    System.Assert.areEqual(
+      0,
+      [SELECT COUNT() FROM Repro_Private_Child__c WHERE Id = :child.Id]
+    );
+  }
+
+  @IsTest
+  static void privateMasterReadShareDeleteIsDenied() {
+    User runner = runnerWithPermSet();
+    Repro_Private_Child__c child = insertPrivateParentAndChild(runner, 'Read');
+
+    String error;
+    System.runAs(runner) {
+      try {
+        new WithSharing().deletePrivateChild(child.Id);
+      } catch (DmlException ex) {
+        error = ex.getDmlStatusCode(0);
+      }
+    }
+    // Read access on the master is not enough to delete its detail.
+    System.Assert.areEqual('INSUFFICIENT_ACCESS_OR_READONLY', error);
+    System.Assert.areEqual(
+      1,
+      [SELECT COUNT() FROM Repro_Private_Child__c WHERE Id = :child.Id]
+    );
+  }
+
+  private static Repro_Private_Child__c insertPrivateParentAndChild(
+    User runner,
+    String accessLevel
+  ) {
+    Repro_Private_Child__c child;
+    System.runAs(new User(Id = UserInfo.getUserId())) {
+      Repro_Private_Parent__c parent = new Repro_Private_Parent__c(Name = 'P');
+      insert parent;
+      child = new Repro_Private_Child__c(
+        Name = 'C',
+        Repro_Private_Parent__c = parent.Id
+      );
+      insert child;
+      insert new Repro_Private_Parent__Share(
+        ParentId = parent.Id,
+        UserOrGroupId = runner.Id,
+        AccessLevel = accessLevel,
+        RowCause = Schema.Repro_Private_Parent__Share.RowCause.Manual
+      );
+    }
+    return child;
   }
 
   private static Repro_Child__c insertParentAndChildAsAdmin() {
@@ -115,6 +196,9 @@ private class MasterDetailDeleteTest {
     }
     public void deleteChild(Id childId) {
       delete new Repro_Child__c(Id = childId);
+    }
+    public void deletePrivateChild(Id childId) {
+      delete new Repro_Private_Child__c(Id = childId);
     }
   }
 }

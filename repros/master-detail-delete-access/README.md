@@ -19,18 +19,26 @@ aer test force-app
   - full CRUD on `Repro_Child__c`
 - The test runs as a Standard User with that permission set. The parent
   record is owned by the user who runs the tests.
+- A second pair, `Repro_Private_Parent__c` (Private org-wide default) and its
+  detail `Repro_Private_Child__c`, is set up the same way. The runner gets
+  access to that master only through a manual share
+  (`Repro_Private_Parent__Share`, `RowCause = Manual`) with
+  `AccessLevel = 'Edit'` or `'Read'`.
 
 On Salesforce, deleting a detail record needs only **Edit** access to its
-master record. The org-wide default gives the runner that access, so every
-test passes in an org.
+master record. The org-wide default or the Edit share gives the runner that
+access, and a Read share does not. Every test passes in an org.
 
 ## Results
 
-| Runtime | `nonOwnerUserModeDeleteOfDetail` | `nonOwnerWithSharingDeleteOfDetail` | `nonOwnerDeletesDetailItCreated` |
+| Test | Salesforce (Developer Edition scratch org, API 68.0) | AER v1.4.16, v1.5.0–v1.5.4 | AER v1.4.17–v1.4.29, v1.5.5–v1.5.8 |
 | --- | --- | --- | --- |
-| Salesforce (Developer Edition scratch org, API 68.0) | PASS | PASS | PASS |
-| AER v1.4.16, v1.5.0–v1.5.4 | PASS | FAIL | FAIL |
-| AER v1.4.17–v1.4.29, v1.5.5–v1.5.8 | FAIL | FAIL | FAIL |
+| `nonOwnerUserModeDeleteOfDetail` | PASS | PASS | FAIL |
+| `nonOwnerWithSharingDeleteOfDetail` | PASS | FAIL | FAIL |
+| `nonOwnerDeletesDetailItCreated` | PASS | FAIL | FAIL |
+| `privateMasterEditShareUserModeDelete` | PASS | PASS | FAIL |
+| `privateMasterEditShareWithSharingDelete` | PASS | FAIL | FAIL |
+| `privateMasterReadShareDeleteIsDenied` | PASS | PASS | PASS |
 
 What each test does:
 
@@ -41,6 +49,12 @@ What each test does:
   only the delete fails.
 - `nonOwnerDeletesDetailItCreated`: the runner inserts the detail record
   itself, then deletes it. AER rejects the delete even then.
+- `privateMasterEditShareUserModeDelete` and
+  `privateMasterEditShareWithSharingDelete`: the same two deletes, on the
+  Private master that is shared to the runner with Edit access.
+- `privateMasterReadShareDeleteIsDenied` (control): the master is shared with
+  Read access only. The `with sharing` delete must fail with
+  `INSUFFICIENT_ACCESS_OR_READONLY`, and it does on both runtimes.
 
 Every failure is:
 
@@ -53,8 +67,13 @@ started failing in v1.4.17 (2026-09-28) and v1.5.5 (2026-09-30), which makes
 them a regression. The release notes for those versions list no change to DML
 access checks.
 
-AER seems to require Delete-level access to the master record, which only the
-owner (or a user above them) has, instead of Edit access.
+Edit access from a manual share behaves exactly like Edit access from the
+org-wide default: in every AER version, the Edit-share tests fail wherever
+the matching Public Read/Write tests fail. AER does tell access levels apart,
+since the Read-share delete is correctly denied. But it does not accept Edit
+as enough to delete a detail record, whatever grants the Edit. AER seems to
+require Delete-level access to the master record, which only the owner (or a
+user above them) has.
 
 ## Expected behavior
 
@@ -65,9 +84,3 @@ AER should allow a detail record to be deleted when the user has:
 
 This should hold for `with sharing` DML and for `AccessLevel.USER_MODE` DML,
 as it does on Salesforce.
-
-## Open question
-
-Untested: a Private master org-wide default where the master is shared
-Read/Write with the runner (manual share or sharing rule). That would show
-whether AER checks the access level on the master or only ownership.
