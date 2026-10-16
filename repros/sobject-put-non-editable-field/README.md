@@ -1,7 +1,13 @@
 # SObject.put() on a non-editable field
 
 This project checks what `SObject.put()` does when the field is not editable.
-Its example is `PermissionSet.IsOwnedByProfile`.
+It covers several kinds of read-only field:
+
+- a read-only standard field on a setup object (`PermissionSet.IsOwnedByProfile`)
+- audit fields (`CreatedDate`, `CreatedById`, `LastModifiedDate`, `SystemModstamp`)
+- the `IsDeleted` system field
+- a custom formula field, a custom roll-up summary field, and an auto-number
+  `Name` field, on the `Repro_Item__c` object included here
 
 Run with AER from this directory:
 
@@ -9,30 +15,46 @@ Run with AER from this directory:
 aer test force-app
 ```
 
-| Runtime | `putOnNonEditableFieldThrows` | `deserializeCanSetNonEditableField` |
-| --- | --- | --- |
-| Salesforce (Developer Edition scratch org, API 68.0) | PASS | PASS |
-| AER v1.4.16, v1.4.29, v1.5.8 | FAIL | PASS |
+To run it in an org, deploy `force-app` and run `NonEditableFieldPutTest`.
 
-On Salesforce, `put()` throws
-`System.SObjectException: Field IsOwnedByProfile is not editable`. AER lets the
-call succeed and sets the value, so the test's assertion fails.
+## Results
+
+| Test | Field | Salesforce | AER |
+| --- | --- | --- | --- |
+| `putOnEditableFieldSucceeds` (control) | `Repro_Item__c.Quantity__c` | PASS | PASS |
+| `putOnNonEditableFieldThrows` | `PermissionSet.IsOwnedByProfile` | PASS | **FAIL** |
+| `putOnCreatedDateThrows` | `Account.CreatedDate` | PASS | **FAIL** |
+| `putOnCreatedByIdThrows` | `Account.CreatedById` | PASS | **FAIL** |
+| `putOnLastModifiedDateThrows` | `Account.LastModifiedDate` | PASS | **FAIL** |
+| `putOnSystemModstampThrows` | `Account.SystemModstamp` | PASS | **FAIL** |
+| `putOnIsDeletedThrows` | `Account.IsDeleted` | PASS | **FAIL** |
+| `putOnFormulaFieldThrows` | `Repro_Item__c.Double_Quantity__c` (formula) | PASS | PASS |
+| `putOnRollUpSummaryFieldThrows` | `Repro_Item__c.Line_Count__c` (roll-up summary) | PASS | PASS |
+| `putOnAutoNumberNameThrows` | `Repro_Item__c.Name` (auto-number) | PASS | PASS |
+| `deserializeCanSetNonEditableField` | `PermissionSet.IsOwnedByProfile` via `JSON.deserialize` | PASS | PASS |
+
+Salesforce: Developer Edition scratch org, API 68.0. AER: v1.4.16, v1.4.29
+and v1.5.8 give the same results.
+
+On Salesforce, every `put()` on a non-editable field throws
+`System.SObjectException: Field <name> is not editable`. AER already throws for
+custom formula, roll-up summary and auto-number fields. For the read-only
+standard and system fields above, AER lets the call succeed and sets the value,
+so those tests' assertions fail.
 
 ## Impact
 
-A test that builds an in-memory record with `put()` on a read-only field
-passes in AER but fails when the same test runs in an org.
-`JSON.deserialize` can set the field on both runtimes, and it is the portable
-way to build such a record.
+A test that builds an in-memory record with `put()` on a read-only standard
+field passes in AER but fails when the same test runs in an org. Setting audit
+fields this way is a common shortcut for faking record age.
+`JSON.deserialize` can set these fields on both runtimes and is the portable
+way to build such a record. For inserted records, `Test.setCreatedDate` is the
+supported way to change `CreatedDate`.
 
 ## Expected behavior
 
-AER should check whether a field is editable in `SObject.put()` and throw
-`SObjectException: Field <name> is not editable`, as Salesforce does.
-`JSON.deserialize` should still be able to set such fields.
-
-## Open question
-
-Only `PermissionSet.IsOwnedByProfile` was checked. It is not known whether
-other read-only fields, such as formula, roll-up and audit fields, behave the
-same way.
+AER should apply the same editability check it already uses for custom
+formula, roll-up summary and auto-number fields to standard read-only fields,
+audit fields and system fields, and throw
+`SObjectException: Field <name> is not editable`. `JSON.deserialize` should
+still be able to set such fields.
