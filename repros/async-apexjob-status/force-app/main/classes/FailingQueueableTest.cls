@@ -19,6 +19,8 @@ private class FailingQueueableTest {
       WHERE Id = :jobId
     ];
 
-    System.assertEquals('Failed', job.Status);
+    // Salesforce leaves the job Processing in the test execution context.
+    System.assertEquals('Processing', job.Status);
+    System.assertEquals(0, job.NumberOfErrors);
   }
 }

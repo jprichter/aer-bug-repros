@@ -1,5 +1,8 @@
 # Queueable stack depth for a job enqueued from a Finalizer
 
+> **✅ FIXED in AER v1.4.30** (the bug was present in v1.4.16, v1.4.29 and
+> v1.5.8; also passes on v1.5.9). Both tests now pass, matching Salesforce.
+
 This project checks whether a Queueable enqueued from a Transaction Finalizer
 keeps the `AsyncOptions.MaximumQueueableStackDepth` of the job that attached
 the Finalizer.
@@ -29,10 +32,10 @@ flow, except that the Finalizer passes its own `AsyncOptions` with
 
 ## Results
 
-| Test | Salesforce (Developer Edition scratch org, API 68.0) | AER v1.4.16, v1.4.29, v1.5.8 |
-| --- | --- | --- |
-| `finalizerChainedJobDoesNotInheritStackDepth` | PASS: `Depth step 1: enqueued`, `Depth step 2: Maximum stack depth has been reached.` | FAIL: `Depth step 1: enqueued`, `Depth step 2: enqueued` |
-| `finalizerPassingStackDepthRestoresAllowance` | PASS: `Depth step 1: enqueued`, `Depth step 2: enqueued` | PASS: same |
+| Test | Salesforce (Developer Edition scratch org, API 68.0) | AER v1.4.16, v1.4.29, v1.5.8 | AER v1.5.9 |
+| --- | --- | --- | --- |
+| `finalizerChainedJobDoesNotInheritStackDepth` | PASS: `Depth step 1: enqueued`, `Depth step 2: Maximum stack depth has been reached.` | FAIL: `Depth step 1: enqueued`, `Depth step 2: enqueued` | **PASS** (fixed) |
+| `finalizerPassingStackDepthRestoresAllowance` | PASS: `Depth step 1: enqueued`, `Depth step 2: enqueued` | PASS: same | PASS |
 
 Both runtimes run the Finalizer-enqueued job during `Test.stopTest()`. In the
 first test they differ only in step 2's stack-depth allowance:
