@@ -1,5 +1,15 @@
 # AER bug reproductions
 
+## Status (re-checked with AER v1.5.9)
+
+| Repro | Status |
+| --- | --- |
+| `async-apexjob-status` | ✅ Fixed in AER v1.5.9 |
+| `finalizer-queueable-stack-depth` | ✅ Fixed in AER v1.5.9 |
+| `dynamic-user-mode-soql` | ℹ️ Not a bug: the test needed `System.runAs` |
+| `master-detail-delete-access` | ❌ Still failing in AER v1.5.9 |
+| `sobject-put-non-editable-field` | ❌ Still failing in AER v1.5.9 |
+
 ## Reproductions
 
 | Repro | What it covers | Details |
