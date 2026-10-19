@@ -1,8 +1,10 @@
 # Deleting a master-detail child without owning the master
 
-> **❌ NOT FIXED in AER v1.5.9.** Five of the six tests still fail with the
-> same `INSUFFICIENT_ACCESS_OR_READONLY` error. Only the control test
-> (`privateMasterReadShareDeleteIsDenied`) passes.
+> **✅ FIXED in AER v1.4.30.** All six tests pass.
+>
+> **❌ NOT in the v1.5.x line:** v1.5.9 still fails five of the six tests with
+> the same `INSUFFICIENT_ACCESS_OR_READONLY` error. Only the control test
+> (`privateMasterReadShareDeleteIsDenied`) passes there.
 
 This project checks whether a user can delete a detail record when they have
 Edit access to its master record but do not own it.
@@ -35,14 +37,14 @@ access, and a Read share does not. Every test passes in an org.
 
 ## Results
 
-| Test | Salesforce (Developer Edition scratch org, API 68.0) | AER v1.4.16, v1.5.0–v1.5.4 | AER v1.4.17–v1.4.29, v1.5.5–v1.5.8 | AER v1.5.9 |
-| --- | --- | --- | --- | --- |
-| `nonOwnerUserModeDeleteOfDetail` | PASS | PASS | FAIL | FAIL |
-| `nonOwnerWithSharingDeleteOfDetail` | PASS | FAIL | FAIL | FAIL |
-| `nonOwnerDeletesDetailItCreated` | PASS | FAIL | FAIL | FAIL |
-| `privateMasterEditShareUserModeDelete` | PASS | PASS | FAIL | FAIL |
-| `privateMasterEditShareWithSharingDelete` | PASS | FAIL | FAIL | FAIL |
-| `privateMasterReadShareDeleteIsDenied` | PASS | PASS | PASS | PASS |
+| Test | Salesforce (Developer Edition scratch org, API 68.0) | AER v1.4.16, v1.5.0–v1.5.4 | AER v1.4.17–v1.4.29, v1.5.5–v1.5.8 | AER v1.4.30 | AER v1.5.9 |
+| --- | --- | --- | --- | --- | --- |
+| `nonOwnerUserModeDeleteOfDetail` | PASS | PASS | FAIL | PASS | FAIL |
+| `nonOwnerWithSharingDeleteOfDetail` | PASS | FAIL | FAIL | PASS | FAIL |
+| `nonOwnerDeletesDetailItCreated` | PASS | FAIL | FAIL | PASS | FAIL |
+| `privateMasterEditShareUserModeDelete` | PASS | PASS | FAIL | PASS | FAIL |
+| `privateMasterEditShareWithSharingDelete` | PASS | FAIL | FAIL | PASS | FAIL |
+| `privateMasterReadShareDeleteIsDenied` | PASS | PASS | PASS | PASS | PASS |
 
 What each test does:
 

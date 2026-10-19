@@ -1,6 +1,6 @@
 # AsyncApexJob status after Queueable failure
 
-> **✅ FIXED in AER v1.5.9** (the bug was present in v1.4.16). AER now leaves
+> **✅ FIXED in AER v1.4.30** (the bug was present in v1.4.16; also passes on v1.5.9). AER now leaves
 > the job `Processing` with `NumberOfErrors = 0`, as Salesforce does, and the
 > test asserts that behavior.
 

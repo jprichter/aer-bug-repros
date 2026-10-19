@@ -1,7 +1,7 @@
 # Queueable stack depth for a job enqueued from a Finalizer
 
-> **✅ FIXED in AER v1.5.9** (the bug was present in v1.4.16, v1.4.29 and
-> v1.5.8). Both tests now pass, matching Salesforce.
+> **✅ FIXED in AER v1.4.30** (the bug was present in v1.4.16, v1.4.29 and
+> v1.5.8; also passes on v1.5.9). Both tests now pass, matching Salesforce.
 
 This project checks whether a Queueable enqueued from a Transaction Finalizer
 keeps the `AsyncOptions.MaximumQueueableStackDepth` of the job that attached

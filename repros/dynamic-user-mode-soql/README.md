@@ -1,10 +1,10 @@
 # Dynamic user-mode SOQL reproduction
 
-> **ℹ️ NOT A BUG: a test error, not an AER defect (checked with AER v1.5.9).**
+> **ℹ️ NOT A BUG: a test error, not an AER defect (checked with AER v1.4.30 and v1.5.9).**
 > The original test ran as the default test user, which has no access to the
 > custom object or field, so user-mode SOQL correctly rejected the query. The
 > test now creates a user with the `Lookup_Field_Repro_Access` permission set
-> and runs inside `System.runAs`. All three tests pass on v1.5.9 with no flags.
+> and runs inside `System.runAs`. All three tests pass on both versions with no flags.
 
 This minimal Salesforce DX project checks whether AER resolves a custom lookup
 field in dynamic SOQL that runs in user mode.

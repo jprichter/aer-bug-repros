@@ -1,8 +1,10 @@
 # SObject.put() on a non-editable field
 
-> **❌ NOT FIXED in AER v1.5.9.** `put()` still succeeds on `PermissionSet.IsOwnedByProfile`
-> and on the `Account` audit and `IsDeleted` fields; the six tests that expect
-> a throw still fail.
+> **✅ FIXED in AER v1.4.30.** All 11 tests pass.
+>
+> **❌ NOT in the v1.5.x line:** on v1.5.9, `put()` still succeeds on
+> `PermissionSet.IsOwnedByProfile` and on the `Account` audit and `IsDeleted`
+> fields, so the six tests that expect a throw still fail.
 
 This project checks what `SObject.put()` does when the field is not editable.
 It covers several kinds of read-only field:
@@ -38,7 +40,7 @@ To run it in an org, deploy `force-app` and run `NonEditableFieldPutTest`.
 | `deserializeCanSetNonEditableField` | `PermissionSet.IsOwnedByProfile` via `JSON.deserialize` | PASS | PASS |
 
 Salesforce: Developer Edition scratch org, API 68.0. AER: v1.4.16, v1.4.29,
-v1.5.8 and v1.5.9 give the same results.
+v1.5.8 and v1.5.9 give the results in the table; v1.4.30 passes every test.
 
 On Salesforce, every `put()` on a non-editable field throws
 `System.SObjectException: Field <name> is not editable`. AER already throws for
